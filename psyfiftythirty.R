@@ -62,7 +62,7 @@ initial_desc <- function(df, columns, df_name = "dataset") {
     column_data <- df[[col]] #allows us to work with one column at a time,
     
     # Determine structure
-    structure_type <- class(column_data)[1] #gives us the structure of the data
+    structure_type <- str(column_data)[1] #gives us the structure of the data
     
     # Determine scale of measurement
     possible_scale_measurement <- get_possible_scale_measurement(column_data) #uses the above get possible scale measurement fucntion to determine a scale of measurement
@@ -414,7 +414,7 @@ final_desc <- function(df, columns, df_name = "dataset", plot = "none") {
     column_data <- df[[col]] #allows us to work with one column at a time,
     
     # Determine structure
-    structure_type <- class(column_data)[1] #gives us the structure of the data
+    structure_type <- str(column_data)[1] #gives us the structure of the data
     
     # Determine scale of measurement
     possible_scale_measurement <- get_possible_scale_measurement(column_data) #uses the above get possible scale measurement fucntion to determine a scale of measurement
