@@ -159,7 +159,7 @@ initial_desc <- function(df, columns, df_name = "dataset") {
     print(freq_table)
     
     cat("\nDescriptive Statistics:\n")
-    for (stat in names(descriptives)[3:18]) {  # Exclude df_name, column, and outliers from print loop, they are kept in the df
+    for (stat in names(descriptives)[3:21]) {  # Exclude df_name, column, and outliers from print loop, they are kept in the df
       cat(sprintf("%-15s: %s\n", stat, descriptives[[stat]]))#printing initial descrptives as needed
     } 
     
@@ -512,7 +512,7 @@ final_desc <- function(df, columns, df_name = "dataset", plot = "none") {
     print(freq_table)
     
     cat("\nDescriptive Statistics:\n")
-    for (stat in names(descriptives)[3:18]) {  # Exclude df_name, column, and outliers from print loop
+    for (stat in names(descriptives)[3:21]) {  # Exclude df_name, column, and outliers from print loop
       cat(sprintf("%-15s: %s\n", stat, descriptives[[stat]]))
     }
     
