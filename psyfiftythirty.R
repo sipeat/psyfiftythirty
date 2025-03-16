@@ -202,52 +202,58 @@ initial_desc <- function(df, columns, df_name = "dataset") {
 #this only works for variables with two columns, ex lsatisfy & lsatisfy_r
 dc_recode <- function(df, col, change, replace_with = NA) {
   
-  # getting antijoin results
-  df <- df %>% select(all_of(col)) # selects only the specified columns for recoding
+  # Select only the specified columns for recoding
+  df <- df %>% select(all_of(col))
   
-  df1 <- df[, 1, drop = F]  # selects the first column (original variable before recoding)
-  colnames(df1) <- "recoded_column"  # renames it to a standard name for easy comparison
+  df1 <- df[, 1, drop = FALSE]  # Select first column (original variable before recoding)
+  colnames(df1) <- "recoded_column"  # Rename for standard comparison
   
-  df2 <- df[, 2, drop = F]  # selects the second column (expected recoded variable)
-  colnames(df2) <- "recoded_column"  # renames it to match df1 for comparison
+  df2 <- df[, 2, drop = FALSE]  # Select second column (expected recoded variable)
+  colnames(df2) <- "recoded_column"  # Rename for standard comparison
   
-  df3 <- anti_join(df1, df2, by = "recoded_column") # finds rows that changed after recoding
+  # Convert both to character before anti-join to handle type changes
+  df1_num <- df1 %>% mutate(recoded_column = as.numeric(recoded_column))
+  df2_num <- df2 %>% mutate(recoded_column = as.numeric(recoded_column))
   
-  # getting frequency tables before and after recoding
-  frequent1 <- janitor::tabyl(df1$recoded_column, show_na = T) # creates frequency table for original values
-  frequent2 <- janitor::tabyl(df2$recoded_column, show_na = T) # creates frequency table for recoded values
+  df3 <- anti_join(df1_num, df2_num, by = "recoded_column")  # Finds rows that changed after recoding
   
-  # applying recoding rule to the original column
-  df1 <- df1 %>% 
-    mutate(recoded_column = ifelse(eval(parse(text = gsub("x", "recoded_column", change))), replace_with, recoded_column)) 
-  # applies the condition to mutate values based on the given 'change' expression
+  # Getting frequency tables before and after recoding
+  frequent1 <- janitor::tabyl(df1$recoded_column, show_na = TRUE) # Creates frequency table for original values
+  frequent2 <- janitor::tabyl(df2$recoded_column, show_na = TRUE) # Creates frequency table for recoded values
   
-  # getting numeric differences between original and recoded values
+  # Applying recoding rule (supports both logical conditions & transformations like as.factor)
+  if (grepl("x", change)) { 
+    # If 'x' is found in 'change', treat it as a logical condition (e.g., "x > 10")
+    df1 <- df1 %>% 
+      mutate(recoded_column = ifelse(eval(parse(text = gsub("x", "recoded_column", change))), replace_with, recoded_column))
+  } else {
+    # If 'x' is NOT in 'change', treat it as a transformation (e.g., "as.factor(recoded_column)")
+    df1 <- df1 %>% 
+      mutate(recoded_column = eval(parse(text = paste0(change, "(recoded_column)"))))
+  }
+  
+  # Getting numeric differences between original and recoded values (if numeric)
   if (is.numeric(df1$recoded_column) && is.numeric(df2$recoded_column)) {
-    recoded_difference <- sum(df1$recoded_column - df2$recoded_column, na.rm = T) # sums up differences between columns
+    recoded_difference <- sum(df1$recoded_column - df2$recoded_column, na.rm = TRUE) # Sums up differences between columns
   } else {
-    recoded_difference <- NA # assigns NA if columns are not numeric
+    recoded_difference <- NA # Assigns NA if columns are not numeric
   }
   
-  # double-check logic: if no differences, return "success"; otherwise, suggest further review
-  if (recoded_difference == 0) { 
-    doublecheck <- "Success!! :)"
-  } else {
-    doublecheck <- "Explore More"
-  }
+  # Double-check logic: if no differences, return "success"; otherwise, suggest further review
+  doublecheck <- ifelse(is.na(recoded_difference) || recoded_difference == 0, "Success!! :)", "Explore More")
   
-  # printing results
+  # Printing results
   cat("\n===========================================\n")
-  cat("Column:", col, "\n") # prints the name of the column being checked
+  cat("Column:", col, "\n") # Prints the name of the column being checked
   cat("Antijoin Results (Rows that Were Mutated):\n")
-  print(df3)  # prints only the rows that changed
+  print(df3)  # Prints only the rows that changed
   
   cat("\nFrequency Tables Pre & Post Recode:\n")
-  print(frequent1) # prints the original frequency table
-  print(frequent2) # prints the recoded frequency table
+  print(frequent1) # Prints the original frequency table
+  print(frequent2) # Prints the recoded frequency table
   
-  cat("\nRecoded Sum Difference:", recoded_difference, "\n") # prints the total sum difference
-  print(doublecheck) # prints the double-check validation message
+  cat("\nRecoded Sum Difference:", recoded_difference, "\n") # Prints the total sum difference
+  print(doublecheck) # Prints the double-check validation message
   cat("\n===========================================\n")
   
 }
