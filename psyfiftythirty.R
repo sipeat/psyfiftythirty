@@ -6,7 +6,7 @@
 if (!require('tidyverse')) install.packages('tidyverse'); library(tidyverse)
 if (!require('moments')) install.packages('moments'); library(moments)
 if (!require('patchwork')) install.packages('patchwork'); library(patchwork)
-if (!require('data.table')) install.packages('data.table'); library(patchwork)
+if (!require('data.table')) install.packages('data.table'); library(data.table)
 
 #Establishing Functions---------------------------------------------------------
 ##Initial descriptives function-------------------------------------------------
