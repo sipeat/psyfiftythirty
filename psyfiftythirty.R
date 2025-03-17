@@ -11,9 +11,6 @@ if (!require('data.table')) install.packages('data.table'); library(data.table)
 #Establishing Functions---------------------------------------------------------
 ##Initial descriptives function-------------------------------------------------
 
-library(moments) #allows for faster execution for descriptives on large datasets
-library(patchwork)  # For combining plots
-
 initial_desc <- function(df, columns, df_name = "dataset") {
   df <- as.data.table(df)  # Convert to data.table for efficiency
   results_list <- list()   # To store results for each column
